@@ -82,3 +82,26 @@ def test_delete_message(client):
     rv = client.get('/delete/1')
     data = json.loads(rv.data)
     assert data["status"] == 1
+
+def test_search(client):
+    """Search endpoint should filter results by query string."""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    client.post(
+        "/add",
+        data=dict(title="Flask TDD", text="write tests first"),
+        follow_redirects=True,
+    )
+    client.post(
+        "/add",
+        data=dict(title="SQLAlchemy tips", text="query like a pro"),
+        follow_redirects=True,
+    )
+
+    """Test that search endpoint filters results by query string"""
+    rv = client.get("/search/?query=Flask")
+    assert rv.status_code == 200
+    html = rv.data.decode("utf-8")
+    # The matching title should appear
+    assert "Flask TDD" in html
+    # Non-matching titles should not
+    assert "SQLAlchemy tips" not in html
