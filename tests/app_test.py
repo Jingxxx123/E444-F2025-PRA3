@@ -77,6 +77,7 @@ def test_messages(client):
     assert b"&lt;Hello&gt;" in rv.data
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
+
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
     rv = client.get("/delete/1")
@@ -86,6 +87,7 @@ def test_delete_message(client):
     rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 1
+
 
 def test_search(client):
     """Search endpoint should filter results by query string."""
@@ -110,15 +112,16 @@ def test_search(client):
     # Non-matching titles should not
     assert "SQLAlchemy tips" not in html
 
+
 def test_delete_requires_login(client):
     """Ensure that deleting a post requires login"""
-    rv = client.get('/delete/1')
+    rv = client.get("/delete/1")
     data = rv.get_json()
     assert data["status"] == 0
     assert "Please log in" in data["message"]
 
     login(client, app.config["USERNAME"], app.config["PASSWORD"])
-    rv = client.get('/delete/1')
+    rv = client.get("/delete/1")
     data = rv.get_json()
     assert data["status"] == 1
     assert "Post Deleted" in data["message"]
